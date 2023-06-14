@@ -7,7 +7,6 @@ from odoo import _, api, exceptions, fields, models
 
 
 class ProductTemplateLink(models.Model):
-
     _inherit = "product.template.link"
 
     date_start = fields.Date("Start Date")
@@ -17,13 +16,14 @@ class ProductTemplateLink(models.Model):
 
     @api.depends("date_start", "date_end", "type_id.limited_by_dates")
     def _compute_is_link_active(self):
-        super()._compute_is_link_active()
+        res = super()._compute_is_link_active()
         today = fields.Date.today()
         for record in self:
             if record.limited_by_dates:
                 record.is_link_active = (
                     (record.date_start or today) <= today <= (record.date_end or today)
                 )
+        return res
 
     @api.constrains("type_id", "date_start")
     def _check_mandatory_date_start(self):
